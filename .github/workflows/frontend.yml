@@ -30,8 +30,8 @@ jobs:
         run: |
           npm install
           npm run build
-      - name: Inject Environment Variables
+      - name: Delete contents of S3 bucket
         run: |
-          echo "VITE_API_BASE_URL=${{ secrets.VITE_API_BASE_URL }}" > ./client/dist/.env
+          aws s3 rm s3://recipe-blog-shane-jung --recursive
       - name: Deploy
         run: aws s3 sync ./client/dist s3://recipe-blog-shane-jung
