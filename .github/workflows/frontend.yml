@@ -30,5 +30,8 @@ jobs:
         run: |
           npm install
           npm run build
+      - name: Inject Environment Variables
+        run: |
+          echo "VITE_API_BASE_URL=${{ secrets.PRODUCTION_API_BASE_URL }}" > ./client/dist.env.production
       - name: Deploy
         run: aws s3 sync ./client/dist s3://recipe-blog-shane-jung
