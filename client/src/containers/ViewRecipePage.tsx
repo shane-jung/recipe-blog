@@ -1,35 +1,68 @@
-import axiosClient from '../axios';
+import { useLocation, useNavigate } from 'react-router-dom';
+
+import axios from '../axios';
+import ConfirmDelete from '../components/Misc/ConfirmDelete';
 import { useRequestProcessor } from '../query';
 
 export default function ViewRecipePage() {
+    const navigate = useNavigate();
     const { query } = useRequestProcessor();
-
+    const slug = useLocation().pathname.split('/').pop();
     const {
-        data: users,
+        data: recipe,
         isLoading,
         isError,
+    }: {
+        data: any;
+        isLoading: boolean;
+        isError: boolean;
     } = query(
-        'recipes',
-        () => axiosClient.get('/recipes').then((res) => res.data),
-        { enabled: true },
+        ['recipes', slug],
+        () => axios.get(`/recipes/${slug}`).then((res) => res.data),
+        {
+            enabled: true,
+        },
     );
 
-    console.log(users, isLoading, isError);
-    return <p>Recipe</p>;
-}
+    return isLoading ? (
+        <p>loading</p>
+    ) : (
+        <div className="prose mx-auto max-w-5xl">
+            <h2 className="mb-4 text-5xl font-normal">{recipe.title}</h2>
+            <h3 className="text-2xl font-thin">{recipe.preview}</h3>
+            <a href={`${slug}/edit`}>Edit this Recipe</a>
+            <ConfirmDelete
+                action={async function () {
+                    try {
+                        const res = await axios.delete(
+                            `/recipes/${recipe._id}`,
+                        );
+                        console.log(res);
+                        if (res.status == 200) navigate(`/recipes`);
+                    } catch (err) {
+                        console.error(err);
+                    }
 
-async function recipes() {
-    const { query } = useRequestProcessor();
+                    // TODO: Invalidate the cache for this recipe
+                }}
+                message={'Are you sure you want to delete this recipe?'}
+                actionString={"Yes, I'm sure."}
+            >
+                Delete this Recipe
+            </ConfirmDelete>
 
-    const {
-        data: users,
-        isLoading,
-        isError,
-    } = query(
-        'users',
-        () => axiosClient.get('/users').then((res) => res.data),
-        { enabled: true },
+            <div>
+                {recipe.body.map((section: any, index: number) => (
+                    <div key={index}>
+                        <h3 className="text-2xl">{section.name}</h3>
+                        <div
+                            dangerouslySetInnerHTML={{
+                                __html: section.content,
+                            }}
+                        ></div>
+                    </div>
+                ))}
+            </div>
+        </div>
     );
-
-    return <div>"hello"</div>;
 }

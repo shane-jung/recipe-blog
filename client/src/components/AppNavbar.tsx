@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 
 export default function AppNavbar() {
     return (
-        <div className="navbar bg-base-100">
+        <div className="navbar bg-base-100 border-b-2 shadow-sm">
             <div className="navbar-start">
                 <div className="dropdown">
                     <label tabIndex={0} className="btn btn-ghost btn-circle">

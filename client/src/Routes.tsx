@@ -4,6 +4,7 @@ import {
     createRoutesFromElements,
 } from 'react-router-dom';
 
+import ErrorBoundary from './components/ErrorBoundary';
 import BrowseRecipes from './containers/BrowseRecipes';
 import CreateRecipePage from './containers/CreateRecipePage';
 import EditRecipePage from './containers/EditRecipePage';
@@ -14,7 +15,7 @@ import ViewRecipePage from './containers/ViewRecipePage';
 const router = createBrowserRouter(
     createRoutesFromElements(
         <Route element={<HomeLayout />}>
-            <Route path="/">
+            <Route path="/" errorElement={<ErrorBoundary />}>
                 <Route>
                     <Route index element={<Home />} />
                     <Route path="recipes">

@@ -3,8 +3,10 @@
     "version": "1.0.0",
     "main": "server/index.ts",
     "scripts": {
+        "build": "tsc",
+        "start": "node dist/index.js",
         "watch": "tsc -w",
-        "server": "node --watch dist/index.js",
+        "server": "ts-node-dev --respawn --transpile-only dist/index.js",
         "client": "npm start --prefix ./client",
         "dev": "concurrently \"npm run server\" \"npm run client\""
     },
@@ -28,6 +30,7 @@
         "concurrently": "^8.0.1",
         "prettier": "3.0.3",
         "prettier-plugin-tailwindcss": "^0.5.4",
+        "ts-node-dev": "^2.0.0",
         "typescript": "^5.2.2"
     }
 }
