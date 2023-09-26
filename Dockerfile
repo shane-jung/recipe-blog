@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image
-FROM node:20-alpine
+FROM node:slim
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN npm install
 COPY dist/ ./dist/
 
 # Expose the port your application will run on
-EXPOSE 5000
+EXPOSE 80
 
 # Define the command to start your application
-CMD ["npm", "run", "server"]
+CMD ["npm", "start"]

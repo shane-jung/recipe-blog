@@ -22,6 +22,9 @@ export default function initializeServer(router: Router) {
 
     app.use(express.static(path.join(__dirname, '../../dist/')));
     app.use('/api', router);
+    app.get('/', (_request, response: Response) => {
+        response.status(200).send('Hello World!');
+    });
     app.get('*', (_request, response: Response) => {
         response.sendFile(path.join(__dirname, '../../dist/index.html'));
     });
