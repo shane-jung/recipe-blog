@@ -8,7 +8,8 @@
         "watch": "tsc -w",
         "server": "ts-node-dev --respawn --transpile-only dist/index.js",
         "client": "npm start --prefix ./client",
-        "dev": "concurrently \"npm run server\" \"npm run client\""
+        "dev": "concurrently \"npm run server\" \"npm run client\"",
+        "actions": "act --secret-file .secrets"
     },
     "license": "MIT",
     "dependencies": {

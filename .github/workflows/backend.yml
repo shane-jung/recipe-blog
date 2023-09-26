@@ -12,26 +12,34 @@ jobs:
               uses: actions/cache@v1
               id: npm-cache
               with:
-                  path: client/node_modules
-                  key: ${{ runner.os }}-npm-${{ hashFiles('client/package-lock.json') }}
+                  path: node_modules
+                  key: ${{ runner.os }}-npm-${{ hashFiles('package-lock.json') }}
                   restore-keys: ${{ runner.os }}-npm-
             - name: Configure AWS credentials
               uses: aws-actions/configure-aws-credentials@v1
               with:
                   aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
                   aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: us-east-2
+                  aws-region: ${{ secrets.AWS_REGION }}
             - name: Use Node.js 18.x
               uses: actions/setup-node@v2
               with:
                   node-version: 18.x
             - name: Install dependencies and build
-              working-directory: ./client
               run: |
                   npm install
                   npm run build
-            - name: Delete contents of S3 bucket
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v1
+            - name: Build, tag, and push the image to Amazon ECR
+              id: build-image
+              env:
+                  ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                  ECR_REPOSITORY: ${{ secrets.REPO_NAME }}
+                  IMAGE_TAG: latest
               run: |
-                  aws s3 rm s3://recipe-blog-shane-jung --recursive
-            - name: Deploy
-              run: aws s3 sync ./client/dist s3://recipe-blog-shane-jung
+                  docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+                  echo "Pushing image to ECR..."
+                  docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+                  echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"

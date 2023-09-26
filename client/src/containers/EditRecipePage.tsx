@@ -8,7 +8,7 @@ import { Recipe } from '../types';
 
 export default function EditRecipePage() {
     const navigate = useNavigate();
-    const { query } = useRequestProcessor();
+    const { query, mutate } = useRequestProcessor();
     const slug = useLocation().pathname.split('/')[2];
     const {
         data: recipe,
@@ -28,9 +28,9 @@ export default function EditRecipePage() {
 
     const onSubmit: SubmitHandler<Recipe> = async (data) => {
         try {
-            const res = await axios.put(`/recipes/${slug}`, data);
-            console.log(res);
-            navigate(`/recipes/${data.slug}`);
+            mutate(['recipes', slug], () =>
+                axios.put(`/recipes/${slug}`, data),
+            );
         } catch (err) {
             console.error(err);
         }

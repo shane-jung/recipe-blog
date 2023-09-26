@@ -5,7 +5,11 @@ import path from 'path';
 export default function initializeServer(router: Router) {
     const app = express();
     const isProduction = process.env.NODE_ENV === 'production';
-    const origin = { origin: isProduction ? false : '*' };
+    const origin = {
+        origin: isProduction ? 'https://d19ni2qsauncnt.cloudfront.net' : '*',
+        methods: 'GET,POST,PUT,DELETE',
+        allowedHeaders: 'Content-Type,Authorization',
+    };
 
     app.set('trust proxy', 1);
     app.use(express.json());
