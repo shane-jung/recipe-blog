@@ -1,3 +1,4 @@
+import aws from 'aws-sdk';
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
@@ -30,7 +31,6 @@ const recipeController = {
         return res.status(200).json({});
     },
     createRecipe: async (req: Request, res: Response) => {
-        console.log(req.body.body);
         try {
             const recipe = await Recipe.create(req.body);
             return res.status(201).json(recipe);
@@ -38,6 +38,28 @@ const recipeController = {
             console.error('Error creating recipe:', error);
             return res.status(500).json({ error: 'Internal server error' });
         }
+    },
+    uploadImage: async (req: Request, res: Response) => {
+        const { fileName, fileType } = req.body;
+        const s3 = new aws.S3({
+            accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+            secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+            region: process.env.AWS_REGION,
+        });
+
+        const s3Params = {
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: fileName,
+            ContentType: fileType,
+            Expires: 60,
+        };
+
+        s3.getSignedUrl('putObject', s3Params, async (_err, signedUrl) => {
+            return res.status(200).json({
+                signedUrl: signedUrl,
+                publicUrl: `https://${s3Params.Bucket}.s3.amazonaws.com/${fileName}`,
+            });
+        });
     },
     updateRecipe: async (req: Request, res: Response) => {
         try {

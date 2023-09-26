@@ -4,6 +4,7 @@ import * as Yup from 'yup';
 
 import { Recipe } from '../types';
 import FormElement from './Forms/FormElement';
+import ImageUpload from './Forms/ImageUpload';
 import RecipeBody from './Forms/RecipeBody';
 
 const schema = Yup.object({
@@ -114,6 +115,7 @@ export default function RecipeForm({
                     )}
                 />
 
+                <ImageUpload control={control} name={'main'} index={1} />
                 <RecipeBody control={control} />
 
                 {/* <FormControl>

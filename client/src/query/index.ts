@@ -27,7 +27,7 @@ export function useRequestProcessor() {
 
     function mutate(
         key: MutationKey,
-        mutationFunction: MutationFunction<unknown, void> | undefined,
+        mutationFunction: MutationFunction<unknown, any> | undefined,
         options = {},
     ) {
         return useMutation({

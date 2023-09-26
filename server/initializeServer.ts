@@ -12,6 +12,7 @@ export default function initializeServer(router: Router) {
     };
 
     app.set('trust proxy', 1);
+    app.set('Content-Type', 'application/json');
     app.use(express.json());
     app.use(cors(origin));
 

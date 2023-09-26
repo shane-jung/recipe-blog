@@ -8,8 +8,10 @@ import { Recipe } from '../types';
 
 export default function EditRecipePage() {
     const navigate = useNavigate();
-    const { query, mutate } = useRequestProcessor();
     const slug = useLocation().pathname.split('/')[2];
+
+    const { query, mutate } = useRequestProcessor();
+
     const {
         data: recipe,
         isLoading,
@@ -26,15 +28,23 @@ export default function EditRecipePage() {
         },
     );
 
-    const onSubmit: SubmitHandler<Recipe> = async (data) => {
+    const mutationObject = mutate(['recipes'], (data: Recipe) => {
+        return axios.put(`recipes/${recipe.slug}`, data);
+    });
+
+    const onSubmit: SubmitHandler<Recipe> = async (data: Recipe) => {
         try {
-            mutate(['recipes', slug], () =>
-                axios.put(`/recipes/${slug}`, data),
-            );
+            const res = await mutationObject.mutateAsync(data);
+            navigate(`/recipes/${data.slug}`);
         } catch (err) {
-            console.error(err);
+            console.log(err);
         }
     };
 
-    return <RecipeForm initialValues={recipe} onSubmit={onSubmit} />;
+    return (
+        <div>
+            <h2 className="mb-2 text-center text-3xl">Edit Recipe</h2>
+            <RecipeForm initialValues={recipe} onSubmit={onSubmit} />{' '}
+        </div>
+    );
 }
