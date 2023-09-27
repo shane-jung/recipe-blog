@@ -1,9 +1,9 @@
-import { useLocation, useNavigate } from 'react-router-dom';
+import { FiEdit } from 'react-icons/fi';
+import { Link, useLocation } from 'react-router-dom';
 
 import axios from '../axios';
-import ConfirmDelete from '../components/Misc/ConfirmDelete';
+import DeleteRecipe from '../components/Recipes/DeleteRecipe';
 import { useRequestProcessor } from '../query';
-import { Recipe } from '../types';
 
 export default function ViewRecipePage() {
     const { query } = useRequestProcessor();
@@ -12,23 +12,19 @@ export default function ViewRecipePage() {
         data: recipe,
     }: {
         data: any;
-    } = query(
-        ['recipes', slug],
-        () => axios.get(`/recipes/${slug}`).then((res) => res.data),
-        {
-            enabled: true,
-        },
+    } = query(['recipes', slug], () =>
+        axios.get(`/recipes/${slug}`).then((res) => res.data),
     );
 
     return (
         <div className="prose mx-auto max-w-5xl">
-            <h2 className="mb-4 text-5xl font-normal">{recipe.title}</h2>
-            <h3 className="text-2xl font-thin">{recipe.preview}</h3>
-            <div className="flex gap-4">
-                <a href={`${slug}/edit`}>Edit this Recipe</a>
-                <DeleteRecipe recipe={recipe} />
+            <div className="relative">
+                <h2 className="mb-4 mt-0 text-5xl font-normal">
+                    {recipe.title}
+                </h2>
+                <h3 className="text-2xl font-thin">{recipe.preview}</h3>
+                <RecipeToolbar recipe={recipe} />
             </div>
-
             <img className="w-full" src={recipe.image} alt={recipe.title}></img>
             <div>
                 {recipe.body.map((section: any, index: number) => (
@@ -46,27 +42,13 @@ export default function ViewRecipePage() {
     );
 }
 
-function DeleteRecipe({ recipe }: { recipe: Recipe }) {
-    const navigate = useNavigate();
-    const { mutate } = useRequestProcessor();
-    const mutationObject = mutate(
-        ['recipes'],
-        () => {
-            return axios.delete(`recipes/${recipe._id}`);
-        },
-        {
-            onSuccess: () => {
-                navigate(`/recipes`);
-            },
-        },
-    );
+function RecipeToolbar({ recipe }: { recipe: any }) {
     return (
-        <ConfirmDelete
-            action={async () => mutationObject.mutate(null)}
-            message={'Are you sure you want to delete this recipe?'}
-            actionString={"Yes, I'm sure."}
-        >
-            Delete this Recipe
-        </ConfirmDelete>
+        <div className="absolute right-8 top-0 flex gap-2 ">
+            <Link to={`edit`} className="btn btn-info btn-sm">
+                <FiEdit className="text-lg text-white" />
+            </Link>
+            <DeleteRecipe recipe={recipe} />
+        </div>
     );
 }

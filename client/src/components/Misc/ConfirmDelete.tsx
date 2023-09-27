@@ -15,7 +15,7 @@ export default function ({
         <>
             <button
                 type="button"
-                className="btn btn-sm btn-error text-white"
+                className="btn btn-error btn-sm"
                 onClick={() => {
                     const x = document.getElementById(
                         `delete_section`,

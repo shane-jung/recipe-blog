@@ -6,6 +6,7 @@ export default function HomeLayout() {
     return (
         <div>
             <AppNavbar />
+
             <div className="px-8 py-8">
                 <Outlet />
             </div>
