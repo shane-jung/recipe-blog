@@ -3,19 +3,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import axios from '../axios';
 import ConfirmDelete from '../components/Misc/ConfirmDelete';
 import { useRequestProcessor } from '../query';
+import { Recipe } from '../types';
 
 export default function ViewRecipePage() {
-    const navigate = useNavigate();
     const { query } = useRequestProcessor();
     const slug = useLocation().pathname.split('/').pop();
     const {
         data: recipe,
-        isLoading,
-        isError,
     }: {
         data: any;
-        isLoading: boolean;
-        isError: boolean;
     } = query(
         ['recipes', slug],
         () => axios.get(`/recipes/${slug}`).then((res) => res.data),
@@ -24,33 +20,16 @@ export default function ViewRecipePage() {
         },
     );
 
-    return isLoading ? (
-        <p>loading</p>
-    ) : (
+    return (
         <div className="prose mx-auto max-w-5xl">
             <h2 className="mb-4 text-5xl font-normal">{recipe.title}</h2>
             <h3 className="text-2xl font-thin">{recipe.preview}</h3>
-            <a href={`${slug}/edit`}>Edit this Recipe</a>
-            <ConfirmDelete
-                action={async function () {
-                    try {
-                        const res = await axios.delete(
-                            `/recipes/${recipe._id}`,
-                        );
-                        console.log(res);
-                        if (res.status == 200) navigate(`/recipes`);
-                    } catch (err) {
-                        console.error(err);
-                    }
+            <div className="flex gap-4">
+                <a href={`${slug}/edit`}>Edit this Recipe</a>
+                <DeleteRecipe recipe={recipe} />
+            </div>
 
-                    // TODO: Invalidate the cache for this recipe
-                }}
-                message={'Are you sure you want to delete this recipe?'}
-                actionString={"Yes, I'm sure."}
-            >
-                Delete this Recipe
-            </ConfirmDelete>
-
+            <img className="w-full" src={recipe.image} alt={recipe.title}></img>
             <div>
                 {recipe.body.map((section: any, index: number) => (
                     <div key={index}>
@@ -64,5 +43,30 @@ export default function ViewRecipePage() {
                 ))}
             </div>
         </div>
+    );
+}
+
+function DeleteRecipe({ recipe }: { recipe: Recipe }) {
+    const navigate = useNavigate();
+    const { mutate } = useRequestProcessor();
+    const mutationObject = mutate(
+        ['recipes'],
+        () => {
+            return axios.delete(`recipes/${recipe._id}`);
+        },
+        {
+            onSuccess: () => {
+                navigate(`/recipes`);
+            },
+        },
+    );
+    return (
+        <ConfirmDelete
+            action={async () => mutationObject.mutate(null)}
+            message={'Are you sure you want to delete this recipe?'}
+            actionString={"Yes, I'm sure."}
+        >
+            Delete this Recipe
+        </ConfirmDelete>
     );
 }

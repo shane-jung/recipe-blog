@@ -10,18 +10,19 @@ export default function CreateRecipePage() {
     const navigate = useNavigate();
 
     const { mutate } = useRequestProcessor();
-    const mutationObject = mutate(['recipes'], (data: Recipe) => {
-        return axios.post(`recipes/`, data);
-    });
 
-    const onSubmit: SubmitHandler<Recipe> = async (data) => {
-        try {
-            const res = await mutationObject.mutateAsync(data);
-            navigate(`/recipes/${data.slug}`);
-        } catch (err) {
-            console.error(err);
-        }
-    };
+    const mutationObject = mutate(
+        ['recipes'],
+        (data: Recipe) => {
+            return axios.post(`recipes/`, data);
+        },
+        {
+            onSuccess: ({ data }: any) => navigate(`/recipes/${data.slug}`),
+        },
+    );
+
+    const onSubmit: SubmitHandler<Recipe> = (data) =>
+        mutationObject.mutate(data);
 
     return (
         <div>

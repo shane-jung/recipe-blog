@@ -63,7 +63,7 @@ const recipeController = {
     },
     updateRecipe: async (req: Request, res: Response) => {
         try {
-            const recipe = await Recipe.updateOne(
+            const recipe = await Recipe.findOneAndUpdate(
                 { slug: req.params.slug },
                 req.body,
             );

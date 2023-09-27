@@ -12,15 +12,7 @@ export default function EditRecipePage() {
 
     const { query, mutate } = useRequestProcessor();
 
-    const {
-        data: recipe,
-        isLoading,
-        isError,
-    }: {
-        data: any;
-        isLoading: boolean;
-        isError: boolean;
-    } = query(
+    const { data: recipe }: { data: any } = query(
         ['recipes', slug],
         () => axios.get(`/recipes/${slug}`).then((res) => res.data),
         {
@@ -28,23 +20,23 @@ export default function EditRecipePage() {
         },
     );
 
-    const mutationObject = mutate(['recipes'], (data: Recipe) => {
-        return axios.put(`recipes/${recipe.slug}`, data);
-    });
+    const mutationObject = mutate(
+        ['recipes', slug],
+        (data: Recipe) => {
+            return axios.put(`recipes/${recipe.slug}`, data);
+        },
+        {
+            onSuccess: ({ data }: any) => navigate(`/recipes/${data.slug}`),
+        },
+    );
 
-    const onSubmit: SubmitHandler<Recipe> = async (data: Recipe) => {
-        try {
-            const res = await mutationObject.mutateAsync(data);
-            navigate(`/recipes/${data.slug}`);
-        } catch (err) {
-            console.log(err);
-        }
-    };
+    const onSubmit: SubmitHandler<Recipe> = (data: Recipe) =>
+        mutationObject.mutate(data);
 
     return (
         <div>
             <h2 className="mb-2 text-center text-3xl">Edit Recipe</h2>
-            <RecipeForm initialValues={recipe} onSubmit={onSubmit} />{' '}
+            <RecipeForm initialValues={recipe} onSubmit={onSubmit} />
         </div>
     );
 }

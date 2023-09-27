@@ -2,10 +2,34 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
+import axios from '../axios';
 import { Recipe } from '../types';
 import FormElement from './Forms/FormElement';
 import ImageUpload from './Forms/ImageUpload';
 import RecipeBody from './Forms/RecipeBody';
+
+const defaultBody = [
+    {
+        name: 'Background',
+        type: 'richText',
+        content: '',
+    },
+    {
+        name: 'Ingredients',
+        type: 'richText',
+        content: '',
+    },
+    {
+        name: 'Directions',
+        type: 'richText',
+        content: '',
+    },
+    {
+        name: 'Notes',
+        type: 'richText',
+        content: '',
+    },
+];
 
 const schema = Yup.object({
     title: Yup.string().required('Required'),
@@ -20,6 +44,7 @@ const schema = Yup.object({
             content: Yup.string().required('Required'),
         }),
     ),
+    image: Yup.mixed(),
 }).required();
 
 export default function RecipeForm({
@@ -39,36 +64,20 @@ export default function RecipeForm({
             title: initialValues?.title || '',
             slug: initialValues?.slug || '',
             preview: initialValues?.preview || '',
-
-            body: initialValues?.body
-                ? initialValues.body
-                : [
-                      {
-                          name: 'Background',
-                          type: 'richText',
-                          content: '',
-                      },
-                      {
-                          name: 'Ingredients',
-                          type: 'richText',
-                          content: '',
-                      },
-                      {
-                          name: 'Directions',
-                          type: 'richText',
-                          content: '',
-                      },
-                      {
-                          name: 'Notes',
-                          type: 'richText',
-                          content: '',
-                      },
-                  ],
+            body: initialValues?.body || defaultBody,
+            image: initialValues?.image || '',
         },
     });
 
+    const onSubmitWrap = async (data: Recipe & { image?: File }) => {
+        console.log(data);
+        let { image, ...rest } = data;
+        const imageUrl = await uploadImage(image);
+        onSubmit({ image: imageUrl, ...rest });
+    };
+
     return (
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form onSubmit={handleSubmit(onSubmitWrap)}>
             <div className="mx-auto grid max-w-5xl">
                 <Controller
                     name="title"
@@ -100,6 +109,8 @@ export default function RecipeForm({
                     )}
                 />
 
+                <ImageUpload control={control} name={'image'} index={0} />
+
                 <Controller
                     name="preview"
                     control={control}
@@ -115,99 +126,8 @@ export default function RecipeForm({
                     )}
                 />
 
-                <ImageUpload control={control} name={'main'} index={1} />
                 <RecipeBody control={control} />
 
-                {/* <FormControl>
-                    <FormControl.Label htmlFor="subtitle">
-                        subtitle
-                    </FormControl.Label>
-                    <FormControl.Input name="subtitle" type="text" />
-                </FormControl>
-    
-                <FormControl>
-                    <FormControl.Label htmlFor="preview">Preview</FormControl.Label>
-                    <FormControl.Input name="preview" type="text" />
-                </FormControl> */}
-
-                {/* <ImageUpload imageUrl={recipe?.imageUrl} index={-1} />
-    
-                <Form.Group as={Row}>
-                    <DurationInput
-                        name="prepTime"
-                        label="Prep Time"
-                        value={recipe?.prepTime}
-                    />
-                    <DurationInput
-                        name="cookTime"
-                        label="Cook Time"
-                        value={recipe?.cookTime}
-                    />
-                    <DurationInput
-                        name="totalTime"
-                        label="Total Time"
-                        value={recipe?.totalTime}
-                    />
-    
-                    <Form.Group as={Col} sm={6} xl={6} className="mb-3">
-                        <Form.Label className="d-block text-center">
-                            Yield
-                        </Form.Label>
-                        <InputGroup>
-                            <Form.Control
-                                name="servingsQty"
-                                type="number"
-                                min={0}
-                                max={100}
-                                defaultValue={
-                                    recipe?.servings
-                                        ? recipe.servings.split(' ')[0]
-                                        : 0
-                                }
-                            />
-                            <Form.Control
-                                name="servingsUnit"
-                                type="text"
-                                defaultValue="Servings"
-                            />
-                        </InputGroup>
-                    </Form.Group>
-                </Form.Group>
-    
-                <Form.Label>Recipe Body</Form.Label>
-    
-                <AddToBody index={-1} setBody={setBody} addSection={addSection} />
-    
-                {body?.map((element: any, index: number) => (
-                    <div key={element._id} className="position-relative">
-                        <RecipeBodyElement
-                            element={element}
-                            index={index}
-                            setBody={setBody}
-                        />
-    
-                        <OverlayTrigger overlay={<Tooltip>Delete Section</Tooltip>}>
-                            <Button
-                                className="position-absolute"
-                                style={{ top: '.5rem', right: '.5rem' }}
-                                variant="danger"
-                                onClick={() => {
-                                    const newBody = [...body];
-                                    newBody.splice(index, 1);
-                                    setBody(newBody);
-                                }}
-                            >
-                                <FontAwesomeIcon icon={faTimes} />
-                            </Button>
-                        </OverlayTrigger>
-    
-                        <AddToBody
-                            index={index}
-                            setBody={setBody}
-                            addSection={addSection}
-                        /> 
-                    </div>
-                ))}*/}
                 <div className="py-8">
                     <button type="submit" className="btn btn-primary mx-auto">
                         Submit
@@ -217,3 +137,26 @@ export default function RecipeForm({
         </form>
     );
 }
+
+const uploadImage = async (image?: File) => {
+    if (!image) return;
+    const {
+        data: { signedUrl, publicUrl },
+    } = await axios.post('recipes/image', {
+        fileName: image?.name,
+        fileType: image?.type,
+    });
+    if (!signedUrl) return;
+
+    const result = await fetch(signedUrl, {
+        method: 'PUT',
+        body: image,
+        headers: {
+            'Content-Type': image?.type,
+        },
+    });
+
+    if (result.ok) {
+        return publicUrl;
+    }
+};
