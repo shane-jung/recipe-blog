@@ -1,53 +1,64 @@
 import clsx from 'clsx';
+import { Controller } from 'react-hook-form';
 
 export default function FormElement({
-    id,
+    control,
     type,
     label,
     placeholder,
     error,
-    fieldRef,
     className,
+    children,
+    name,
 }: {
-    id: string;
+    name: string;
+    children?: React.ReactNode;
+    control: any;
     type: string;
     label: string;
     placeholder: string;
     error?: string;
-    fieldRef: any;
     className?: string;
 }) {
     return (
-        <div className={clsx('form-control  relative mt-2  pb-6', className)}>
-            <label className="label label-text font-medium" htmlFor={id}>
+        <div className={clsx('form-control relative mt-2 pb-6', className)}>
+            <label
+                className="label label-text w-full font-medium capitalize"
+                htmlFor={name}
+            >
                 {label}
             </label>
-            {type === 'textarea' ? (
-                <textarea
-                    id={id}
-                    className="textarea textarea-primary w-full max-w-xl"
-                    placeholder={placeholder}
-                    rows={3}
-                    {...fieldRef}
-                />
-            ) : (
-                <input
-                    id={id}
-                    type={type}
-                    className={clsx(
-                        'input input-primary w-full max-w-xs',
-                        error && 'input-error',
-                    )}
-                    placeholder={placeholder}
-                    {...fieldRef}
-                />
-            )}
-
-            {error && (
-                <div className=" label-text text-error absolute bottom-0 left-2">
-                    {error}
-                </div>
-            )}
+            <Controller
+                control={control}
+                name={name}
+                render={({ field, fieldState }) => (
+                    <>
+                        {children || type === 'textarea' ? (
+                            <textarea
+                                className="textarea textarea-primary w-full max-w-2xl"
+                                placeholder={placeholder}
+                                rows={3}
+                                {...field}
+                            />
+                        ) : (
+                            <input
+                                type={type}
+                                className={clsx(
+                                    'input input-primary w-full max-w-sm',
+                                    error && 'input-error',
+                                )}
+                                placeholder={placeholder}
+                                {...field}
+                            />
+                        )}
+                        {fieldState.error && (
+                            <div className=" label-text text-error absolute bottom-0 left-2">
+                                {fieldState.error.message}
+                            </div>
+                        )}
+                    </>
+                )}
+            />
         </div>
     );
 }

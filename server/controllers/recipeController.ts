@@ -59,7 +59,7 @@ const recipeController = {
         s3.getSignedUrl('putObject', s3Params, async (_err, signedUrl) => {
             return res.status(200).json({
                 signedUrl: signedUrl,
-                publicUrl: `https://${s3Params.Bucket}.s3.amazonaws.com/${fileName}`,
+                publicUrl: `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${fileName}`,
             });
         });
     },

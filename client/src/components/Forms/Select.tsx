@@ -1,5 +1,6 @@
 import axios from '@/axios';
 import { useRequestProcessor } from '@/query';
+import clsx from 'clsx';
 import { useState } from 'react';
 import { Controller } from 'react-hook-form';
 import Creatable from 'react-select/creatable';
@@ -23,7 +24,6 @@ export default function ReactSelect({
         ['tags', category],
         () =>
             axios.get(`tags/category/${category}`).then((res) => {
-                console.log(category, res.data);
                 return res.data.map(
                     ({ label, _id }: { label: string; _id: string }) => ({
                         label,
@@ -56,15 +56,19 @@ export default function ReactSelect({
     const [selected, setSelected] = useState<Option[]>([]);
     const [options, setOptions] = useState(tags);
     return (
-        <div className={className}>
-            <label className="label ">{category}</label>
+        <div className={clsx('form-control relative mt-2 pb-6', className)}>
+            <label
+                className="label label-text font-medium capitalize"
+                htmlFor={`tags[${category}]`}
+            >
+                {category}s (Optional)
+            </label>
             <Controller
                 control={control}
-                name={`tags[${category}`}
+                name={`tags[${category}]`}
                 render={({ field }) => (
                     <Creatable
                         isMulti
-                        name={`tags[${category}`}
                         options={options as any}
                         value={field.value}
                         onChange={field.onChange}
@@ -72,7 +76,6 @@ export default function ReactSelect({
                         isDisabled={isLoading}
                         isLoading={isLoading}
                         onCreateOption={mutatationObject.mutateAsync}
-                        // className="input "
                         classNamePrefix="select"
                     />
                 )}

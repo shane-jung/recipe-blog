@@ -1,5 +1,6 @@
 import axios from '@/axios';
-import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
 import FormElement from './FormElement';
@@ -42,9 +43,9 @@ const schema = Yup.object({
     preview: Yup.string().required('Required'),
     body: Yup.array().of(
         Yup.object().shape({
-            name: Yup.string().required('Required'),
+            name: Yup.string(),
             type: Yup.string().required('Required'),
-            content: Yup.string().required('Required'),
+            content: Yup.mixed().required('Required'),
         }),
     ),
     image: Yup.mixed(),
@@ -53,7 +54,12 @@ const schema = Yup.object({
         const categorySchemaMap: categorySchemaMapInterface = {};
 
         categoryKeys.forEach((key) => {
-            categorySchemaMap[key] = Yup.array().of(Yup.string());
+            categorySchemaMap[key] = Yup.array().of(
+                Yup.object().shape({
+                    label: Yup.string(),
+                    value: Yup.string(),
+                }),
+            );
         });
 
         return Yup.object().shape(categorySchemaMap);
@@ -72,6 +78,7 @@ export default function RecipeForm({
         handleSubmit,
         formState: { errors },
     } = useForm({
+        resolver: yupResolver(schema),
         defaultValues: {
             title: initialValues?.title || '',
             slug: initialValues?.slug || '',
@@ -95,74 +102,87 @@ export default function RecipeForm({
         },
     });
 
+    console.log(errors);
     const onSubmitWrap = async (data: any) => {
-        let { image, ...rest } = data;
-        const imageUrl = await uploadImage(image);
-        onSubmit({ image: imageUrl, ...rest });
+        console.log(data);
+        let { image, body, ...rest } = data;
+
+        if (typeof image !== 'string') {
+            let headerImage = await uploadImage(data.slug, 'header', image);
+            data = { ...data, image: headerImage };
+        }
+        body = await Promise.all(
+            body.map(async (section: any, index: number) => {
+                delete section._id;
+                if (
+                    section.type === 'image' &&
+                    typeof section.content !== 'string'
+                ) {
+                    console.log(section.content);
+                    section.content = await uploadImage(
+                        data.slug,
+                        index,
+                        section.content,
+                    );
+                    section.name = `image-${index}`;
+                }
+                return section;
+            }),
+        );
+        console.log(body);
+        onSubmit({ ...data, body });
     };
 
     return (
         <form onSubmit={handleSubmit(onSubmitWrap)}>
             <div className="mx-auto grid max-w-5xl grid-cols-1 lg:grid-cols-12">
-                <Controller
-                    name="title"
-                    control={control}
-                    render={({ field }) => (
-                        <FormElement
-                            id="title"
-                            type="text"
-                            label="Recipe Title"
-                            placeholder="Title"
-                            fieldRef={field}
-                            className="col-span-6"
-                            // error={errors.title?.message}
-                        />
-                    )}
-                />
+                <div className="contents">
+                    <h3 className="col-span-12 mt-12 text-2xl font-medium ">
+                        General
+                    </h3>
+                    <FormElement
+                        name="title"
+                        type="text"
+                        label="Recipe Title"
+                        placeholder="Title"
+                        className="col-span-6"
+                        control={control}
+                    />
+                    <FormElement
+                        control={control}
+                        name="slug"
+                        type="text"
+                        label="Slug"
+                        placeholder="Recipe Slug (e.g. my-recipe)"
+                        className="col-span-6"
+                    />
 
-                <Controller
-                    name="slug"
-                    control={control}
-                    render={({ field }) => (
-                        <FormElement
-                            id="slug"
-                            type="text"
-                            label="Slug"
-                            placeholder="Recipe Slug (e.g. my-recipe)"
-                            fieldRef={field}
-                            className="col-span-6"
-                            // error={errors.slug?.message}
-                        />
-                    )}
-                />
+                    <FormElement
+                        control={control}
+                        name="preview"
+                        type="textarea"
+                        label="Recipe Text Preview"
+                        placeholder="Recipe Preview"
+                        className="col-span-12 "
+                    />
+                </div>
 
-                <Select
-                    control={control}
-                    name="meal"
-                    className="col-span-6 w-full max-w-xs"
-                />
+                <div className="contents">
+                    <h3 className="col-span-12 mt-12 text-2xl font-medium ">
+                        Tags
+                    </h3>
+                    <Select
+                        control={control}
+                        name="meal"
+                        className="col-span-6 w-full max-w-sm"
+                    />
 
-                <Select
-                    control={control}
-                    name="ingredient"
-                    className="col-span-6 w-full max-w-xs"
-                />
-
-                <Controller
-                    name="preview"
-                    control={control}
-                    render={({ field }) => (
-                        <FormElement
-                            id="preview"
-                            type="textarea"
-                            label="Recipe Text Preview"
-                            placeholder="Recipe Preview"
-                            fieldRef={field}
-                            className="col-span-8 "
-                            // error={errors.preview?.message}
-                        />
-                    )}
-                />
+                    <Select
+                        control={control}
+                        name="ingredient"
+                        className="col-span-6 w-full max-w-sm"
+                    />
+                </div>
 
                 <ImageUpload
                     control={control}
@@ -183,12 +203,13 @@ export default function RecipeForm({
     );
 }
 
-const uploadImage = async (image?: File) => {
+const uploadImage = async (slug: string, id: any, image?: File) => {
     if (!image) return;
+    console.log(image.type);
     const {
         data: { signedUrl, publicUrl },
     } = await axios.post('recipes/image', {
-        fileName: image?.name,
+        fileName: `recipes/${slug}/${id}`,
         fileType: image?.type,
     });
     if (!signedUrl) return;

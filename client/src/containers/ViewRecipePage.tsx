@@ -17,28 +17,70 @@ export default function ViewRecipePage() {
         () => axios.get(`/recipes/${slug}`).then((res) => res.data),
         { enabled: true },
     );
+    console.log(recipe.body);
     return (
         <div className="prose mx-auto max-w-5xl ">
-            <Breadcrumbs />
-            <div className="relative">
+            <div className="relative flex items-center justify-between">
+                <Breadcrumbs
+                    path={[
+                        {
+                            label: 'Browse Recipes',
+                            link: '/recipes',
+                        },
+                        {
+                            label: recipe.title,
+                        },
+                    ]}
+                />
+                <RecipeToolbar recipe={recipe} />
+            </div>
+            <div>
                 <h2 className="mb-4 mt-0 text-5xl font-normal">
                     {recipe.title}
                 </h2>
                 <h3 className="text-2xl font-thin">{recipe.preview}</h3>
-                <RecipeToolbar recipe={recipe} />
             </div>
             <img className="w-full" src={recipe.image} alt={recipe.title}></img>
+
             <div>
-                {recipe.body.map((section: any, index: number) => (
-                    <div key={index}>
-                        <h3 className="text-2xl">{section.name}</h3>
-                        <div
-                            dangerouslySetInnerHTML={{
-                                __html: section.content,
-                            }}
-                        ></div>
-                    </div>
+                {recipe.tags.meal?.map((tag: any) => (
+                    <span
+                        className="tag badge badge-primary mr-2"
+                        key={tag._id}
+                    >
+                        {tag.label}
+                    </span>
                 ))}
+
+                {recipe.tags.ingredient?.map((tag: any) => (
+                    <span
+                        className="tag badge badge-secondary mr-2"
+                        key={tag._id}
+                    >
+                        {tag.label}
+                    </span>
+                ))}
+            </div>
+
+            <div>
+                {recipe.body.map((section: any) => {
+                    return section['type'] === 'richText' ? (
+                        <div key={section._id}>
+                            <h3 className="text-2xl">{section.name}</h3>
+                            <div
+                                dangerouslySetInnerHTML={{
+                                    __html: section.content,
+                                }}
+                            ></div>
+                        </div>
+                    ) : (
+                        <img
+                            src={section.content}
+                            alt={'image'}
+                            key={section._id}
+                        />
+                    );
+                })}
             </div>
         </div>
     );
@@ -46,8 +88,8 @@ export default function ViewRecipePage() {
 
 function RecipeToolbar({ recipe }: { recipe: any }) {
     return (
-        <div className="absolute right-8 top-0 flex gap-2 ">
-            <Link to={`edit`} className="btn btn-info btn-sm">
+        <div>
+            <Link to={`edit`} className="btn btn-info btn-sm mr-2">
                 <FiEdit className="text-lg text-white" />
             </Link>
             <DeleteRecipe recipe={recipe} />

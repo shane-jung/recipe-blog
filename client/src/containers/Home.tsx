@@ -34,7 +34,7 @@ export default function HomePage() {
                     />
                 </figure>
             </div>
-            <div className="prose prose-stone col-span-4 p-4">
+            <div className="prose prose-stone col-span-4 flex flex-col justify-center p-4">
                 <h2>
                     <Link
                         to={`/recipes/${recipes[0].slug}`}
@@ -46,12 +46,37 @@ export default function HomePage() {
                 <h3 className="font-thin">
                     {recipes[0].preview.substring(0, 100)}
                 </h3>
-                <Link
-                    to={`/recipes/${recipes[0].slug}`}
-                    className="btn btn-info"
-                >
-                    View Recipe
-                </Link>
+                <div className="btn-group mx-auto text-center">
+                    <Link
+                        role="button"
+                        to={`recipes/${recipes[0].slug}`}
+                        className="btn btn-primary"
+                    >
+                        View Recipe
+                    </Link>
+                    <Link
+                        role="button"
+                        to={`recipes`}
+                        className="btn btn-outline btn-primary"
+                    >
+                        Explore all recipes
+                    </Link>
+                </div>
+            </div>
+
+            <div className="col-span-12 py-24">
+                <h2 className="text-3xl font-normal">Latest Recipes</h2>
+                <div className="carousel rounded-box  space-x-4 p-4">
+                    {recipes.map((recipe: any) => (
+                        <div className="carousel-item">
+                            <img
+                                src={recipe.image}
+                                className="rounded-box h-72"
+                            />
+                        </div>
+                    ))}
+                </div>
+                d
             </div>
         </div>
     );

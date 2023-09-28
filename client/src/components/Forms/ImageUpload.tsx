@@ -7,29 +7,31 @@ export default function ImageUpload({
     control,
     className,
 }: {
-    name: string;
+    name?: string;
     index: number;
     control: any;
     className?: string;
 }) {
     return (
-        <Controller
-            control={control}
-            name={name}
-            render={({ field: { value, onChange, ...field } }) => (
-                <input
-                    type="file"
-                    className={clsx(
-                        className,
-                        'file-input file-input-primary w-full max-w-sm',
-                    )}
-                    value={value?.fileName}
-                    onChange={(event) => {
-                        onChange(event.target.files![0]);
-                    }}
-                    {...field}
-                />
-            )}
-        />
+        <div className={clsx('w-full', className)}>
+            <label className="label label-text font-medium">Upload Image</label>
+            <Controller
+                control={control}
+                name={name || `body[${index}].content`}
+                render={({ field: { value, onChange, ...field } }) => (
+                    <input
+                        type="file"
+                        className={
+                            'file-input file-input-primary w-full max-w-sm'
+                        }
+                        value={value?.fileName}
+                        onChange={(event) => {
+                            onChange(event.target.files![0]);
+                        }}
+                        {...field}
+                    />
+                )}
+            />
+        </div>
     );
 }
