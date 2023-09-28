@@ -7,7 +7,7 @@ import Recipe from '../model/recipe';
 const recipeController = {
     getRecipes: async (_req: Request, res: Response) => {
         try {
-            const recipes = await Recipe.find();
+            const recipes = await Recipe.find().populate({ path: 'tags.$*' });
             if (!recipes) {
                 return res.status(404).json({ error: 'No Recipes Found' });
             }
@@ -20,7 +20,9 @@ const recipeController = {
     },
     getRecipe: async (req: Request, res: Response) => {
         try {
-            const recipe = await Recipe.findOne({ slug: req.params.slug });
+            const recipe = await Recipe.findOne({
+                slug: req.params.slug,
+            }).populate({ path: 'tags.$*' });
             if (!recipe) {
                 return res.status(404).json({ error: 'Recipe not found' });
             } else return res.status(200).json(recipe);
@@ -62,10 +64,25 @@ const recipeController = {
         });
     },
     updateRecipe: async (req: Request, res: Response) => {
+        const { body } = req;
+        const transformedBody = {
+            ...body,
+            tags: Object.keys(body.tags).reduce(
+                (result, category) => ({
+                    ...result,
+                    [category]: body.tags[category].map(
+                        ({ value }: { value: string }) =>
+                            new mongoose.Types.ObjectId(value),
+                    ),
+                }),
+                {},
+            ),
+        };
         try {
             const recipe = await Recipe.findOneAndUpdate(
                 { slug: req.params.slug },
-                req.body,
+                transformedBody,
+                { new: true },
             );
             return res.status(200).json(recipe);
         } catch (error) {
@@ -78,7 +95,6 @@ const recipeController = {
             const deleteResult = await Recipe.deleteOne({
                 _id: new mongoose.Types.ObjectId(req.params.id),
             });
-            console.log(deleteResult);
             return res.status(200).json(deleteResult);
         } catch {
             return res.status(500).json({ error: 'Internal server error' });

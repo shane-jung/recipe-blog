@@ -4,14 +4,19 @@ const { model, Schema } = mongoose;
 
 const recipeSchema = new Schema(
     {
-        title: String,
-        image: String,
+        title: { $type: String, required: true },
+        image: { $type: String, required: true },
         preview: String,
-        slug: String,
+        slug: { $type: String, required: true },
         body: [{ type: String, content: String, name: String }],
+        tags: {
+            $type: Map,
+            of: [{ $type: Schema.Types.ObjectId, ref: 'Tag' }],
+        },
     },
     { typeKey: '$type' },
 );
 
-const Recipe = model('recipe', recipeSchema);
+const Recipe = model('Recipe', recipeSchema);
+
 export default Recipe;

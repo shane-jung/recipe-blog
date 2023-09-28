@@ -7,7 +7,7 @@ export default function HomeLayout() {
         <div>
             <AppNavbar />
 
-            <div className="px-8 py-8">
+            <div className="">
                 <Outlet />
             </div>
         </div>

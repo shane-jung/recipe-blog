@@ -1,3 +1,7 @@
+interface Tag {
+    [category: string]: string[];
+}
+
 export type Recipe = {
     _id?: string;
     title: string;
@@ -9,4 +13,5 @@ export type Recipe = {
         type: string;
         content: string;
     }[];
+    tags: Tag;
 };

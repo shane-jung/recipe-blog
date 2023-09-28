@@ -1,9 +1,9 @@
+import axios from '@/axios';
+import Breadcrumbs from '@/components/Misc/Breadcrumbs';
+import DeleteRecipe from '@/components/Recipes/DeleteRecipe';
+import { useRequestProcessor } from '@/query';
 import { FiEdit } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
-
-import axios from '../axios';
-import DeleteRecipe from '../components/Recipes/DeleteRecipe';
-import { useRequestProcessor } from '../query';
 
 export default function ViewRecipePage() {
     const { query } = useRequestProcessor();
@@ -12,12 +12,14 @@ export default function ViewRecipePage() {
         data: recipe,
     }: {
         data: any;
-    } = query(['recipes', slug], () =>
-        axios.get(`/recipes/${slug}`).then((res) => res.data),
+    } = query(
+        ['recipes', slug],
+        () => axios.get(`/recipes/${slug}`).then((res) => res.data),
+        { enabled: true },
     );
-
     return (
-        <div className="prose mx-auto max-w-5xl">
+        <div className="prose mx-auto max-w-5xl ">
+            <Breadcrumbs />
             <div className="relative">
                 <h2 className="mb-4 mt-0 text-5xl font-normal">
                     {recipe.title}

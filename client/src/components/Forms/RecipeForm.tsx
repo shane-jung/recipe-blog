@@ -1,12 +1,11 @@
-import { yupResolver } from '@hookform/resolvers/yup';
+import axios from '@/axios';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 
-import axios from '../axios';
-import { Recipe } from '../types';
-import FormElement from './Forms/FormElement';
-import ImageUpload from './Forms/ImageUpload';
-import RecipeBody from './Forms/RecipeBody';
+import FormElement from './FormElement';
+import ImageUpload from './ImageUpload';
+import RecipeBody from './RecipeBody';
+import Select from './Select';
 
 const defaultBody = [
     {
@@ -31,6 +30,10 @@ const defaultBody = [
     },
 ];
 
+interface categorySchemaMapInterface {
+    [key: string]: any;
+}
+
 const schema = Yup.object({
     title: Yup.string().required('Required'),
     slug: Yup.string()
@@ -45,32 +48,54 @@ const schema = Yup.object({
         }),
     ),
     image: Yup.mixed(),
+    tags: Yup.lazy((obj) => {
+        const categoryKeys = Object.keys(obj);
+        const categorySchemaMap: categorySchemaMapInterface = {};
+
+        categoryKeys.forEach((key) => {
+            categorySchemaMap[key] = Yup.array().of(Yup.string());
+        });
+
+        return Yup.object().shape(categorySchemaMap);
+    }),
 }).required();
 
 export default function RecipeForm({
     initialValues,
     onSubmit,
 }: {
-    initialValues?: Recipe;
-    onSubmit: SubmitHandler<Recipe>;
+    initialValues?: any;
+    onSubmit: SubmitHandler<any>;
 }) {
     const {
         control,
         handleSubmit,
         formState: { errors },
     } = useForm({
-        resolver: yupResolver(schema),
         defaultValues: {
             title: initialValues?.title || '',
             slug: initialValues?.slug || '',
             preview: initialValues?.preview || '',
             body: initialValues?.body || defaultBody,
             image: initialValues?.image || '',
+            tags: initialValues?.tags
+                ? Object.keys(initialValues?.tags).reduce(
+                      (acc: any, key: string) => {
+                          acc[key] = initialValues?.tags[key].map(
+                              (tag: any) => ({
+                                  label: tag.label,
+                                  value: tag._id,
+                              }),
+                          );
+                          return acc;
+                      },
+                      {},
+                  )
+                : {},
         },
     });
 
-    const onSubmitWrap = async (data: Recipe & { image?: File }) => {
-        console.log(data);
+    const onSubmitWrap = async (data: any) => {
         let { image, ...rest } = data;
         const imageUrl = await uploadImage(image);
         onSubmit({ image: imageUrl, ...rest });
@@ -78,7 +103,7 @@ export default function RecipeForm({
 
     return (
         <form onSubmit={handleSubmit(onSubmitWrap)}>
-            <div className="mx-auto grid max-w-5xl">
+            <div className="mx-auto grid max-w-5xl grid-cols-1 lg:grid-cols-12">
                 <Controller
                     name="title"
                     control={control}
@@ -89,7 +114,8 @@ export default function RecipeForm({
                             label="Recipe Title"
                             placeholder="Title"
                             fieldRef={field}
-                            error={errors.title?.message}
+                            className="col-span-6"
+                            // error={errors.title?.message}
                         />
                     )}
                 />
@@ -104,12 +130,23 @@ export default function RecipeForm({
                             label="Slug"
                             placeholder="Recipe Slug (e.g. my-recipe)"
                             fieldRef={field}
-                            error={errors.slug?.message}
+                            className="col-span-6"
+                            // error={errors.slug?.message}
                         />
                     )}
                 />
 
-                <ImageUpload control={control} name={'image'} index={0} />
+                <Select
+                    control={control}
+                    name="meal"
+                    className="col-span-6 w-full max-w-xs"
+                />
+
+                <Select
+                    control={control}
+                    name="ingredient"
+                    className="col-span-6 w-full max-w-xs"
+                />
 
                 <Controller
                     name="preview"
@@ -121,9 +158,17 @@ export default function RecipeForm({
                             label="Recipe Text Preview"
                             placeholder="Recipe Preview"
                             fieldRef={field}
-                            error={errors.slug?.message}
+                            className="col-span-8 "
+                            // error={errors.preview?.message}
                         />
                     )}
+                />
+
+                <ImageUpload
+                    control={control}
+                    name={'image'}
+                    index={0}
+                    className="col-span-4 my-12"
                 />
 
                 <RecipeBody control={control} />

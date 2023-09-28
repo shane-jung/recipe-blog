@@ -1,8 +1,16 @@
 import cors from 'cors';
 import express, { NextFunction, Request, Response, Router } from 'express';
+import fs from 'fs';
 import path from 'path';
 
 export default function initializeServer(router: Router) {
+    var models_path = __dirname + '/model';
+    fs.readdirSync(models_path).forEach(function (file) {
+        if (~file.indexOf('.ts')) {
+            console.log('here');
+            require(models_path + '/' + file);
+        }
+    });
     const app = express();
     const isProduction = process.env.NODE_ENV === 'production';
     const origin = {

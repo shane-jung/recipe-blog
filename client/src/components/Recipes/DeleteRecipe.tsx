@@ -1,9 +1,9 @@
+import axios from '@/axios';
+import { useRequestProcessor } from '@/query';
+import { Recipe } from '@/types';
 import { MdDelete } from 'react-icons/md';
 import { useNavigate } from 'react-router-dom';
 
-import axios from '../../axios';
-import { useRequestProcessor } from '../../query';
-import { Recipe } from '../../types';
 import ConfirmDelete from '../Misc/ConfirmDelete';
 
 export default function DeleteRecipe({ recipe }: { recipe: Recipe }) {

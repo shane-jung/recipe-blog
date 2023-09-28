@@ -1,10 +1,9 @@
+import axios from '@/axios';
+import RecipeForm from '@/components/Forms/RecipeForm';
+import { useRequestProcessor } from '@/query';
+import { Recipe } from '@/types';
 import { SubmitHandler } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-import axios from '../axios';
-import RecipeForm from '../components/RecipeForm';
-import { useRequestProcessor } from '../query';
-import { Recipe } from '../types';
 
 export default function EditRecipePage() {
     const navigate = useNavigate();
