@@ -1,3 +1,4 @@
+import ProtectedElement from '@/components/Auth/ProtectedElement';
 import Breadcrumbs from '@/components/Misc/Breadcrumbs';
 import { Link } from 'react-router-dom';
 
@@ -11,16 +12,17 @@ export default function BrowseRecipes() {
         () => axios.get(`/recipes`).then((res) => res.data),
         { enabled: true },
     );
-    console.log(recipes);
     return (
         <div className="mx-auto p-8 2xl:px-32">
             <Breadcrumbs path={[{ label: 'Browse Recipes' }]} />
-            <Link
-                className="btn-primary btn z-100 fixed right-10 top-20"
-                to="create"
-            >
-                Create Recipe
-            </Link>
+            <ProtectedElement>
+                <Link
+                    className="btn-primary btn z-100 fixed right-10 top-20"
+                    to="create"
+                >
+                    Create Recipe
+                </Link>
+            </ProtectedElement>
             <h2 className="mb-12 text-center text-3xl">All Recipes</h2>
             <div className="mx-auto grid grid-cols-1 justify-center gap-x-6 gap-y-16 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {recipes.map((recipe: any, index: number) => (

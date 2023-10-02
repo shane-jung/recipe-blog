@@ -6,7 +6,6 @@ export default function FormElement({
     type,
     label,
     placeholder,
-    error,
     className,
     children,
     name,
@@ -17,7 +16,6 @@ export default function FormElement({
     type: string;
     label: string;
     placeholder: string;
-    error?: string;
     className?: string;
 }) {
     return (
@@ -45,7 +43,7 @@ export default function FormElement({
                                 type={type}
                                 className={clsx(
                                     'input input-primary w-full max-w-sm',
-                                    error && 'input-error',
+                                    fieldState.error && 'input-error',
                                 )}
                                 placeholder={placeholder}
                                 {...field}

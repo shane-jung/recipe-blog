@@ -1,5 +1,8 @@
 import { Link } from 'react-router-dom';
 
+import Logout from './Auth/Logout';
+import ProtectedElement from './Auth/ProtectedElement';
+
 export default function AppNavbar() {
     return (
         <div className="navbar bg-base-100 border-b-2 shadow-sm">
@@ -38,6 +41,9 @@ export default function AppNavbar() {
                 <a className="btn btn-ghost text-xl normal-case">shanye food</a>
             </div>
             <div className="navbar-end">
+                <ProtectedElement>
+                    <Logout />
+                </ProtectedElement>
                 <button className="btn btn-ghost btn-circle">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"

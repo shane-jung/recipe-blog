@@ -1,4 +1,5 @@
 import axios from '@/axios';
+import ProtectedElement from '@/components/Auth/ProtectedElement';
 import Breadcrumbs from '@/components/Misc/Breadcrumbs';
 import DeleteRecipe from '@/components/Recipes/DeleteRecipe';
 import { useRequestProcessor } from '@/query';
@@ -17,7 +18,6 @@ export default function ViewRecipePage() {
         () => axios.get(`/recipes/${slug}`).then((res) => res.data),
         { enabled: true },
     );
-    console.log(recipe.body);
     return (
         <div className="prose mx-auto max-w-5xl ">
             <div className="relative flex items-center justify-between">
@@ -32,7 +32,9 @@ export default function ViewRecipePage() {
                         },
                     ]}
                 />
-                <RecipeToolbar recipe={recipe} />
+                <ProtectedElement>
+                    <RecipeToolbar recipe={recipe} />
+                </ProtectedElement>
             </div>
             <div>
                 <h2 className="mb-4 mt-0 text-5xl font-normal">

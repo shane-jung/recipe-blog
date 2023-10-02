@@ -38,7 +38,6 @@ export default function ({
                             <button
                                 type="button"
                                 onClick={() => {
-                                    console.log('deleting');
                                     action();
                                     const modal = document.getElementById(
                                         `delete_section`,

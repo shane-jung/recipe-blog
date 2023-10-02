@@ -1,70 +1,12 @@
 import axios from '@/axios';
 import { yupResolver } from '@hookform/resolvers/yup';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import * as Yup from 'yup';
+import * as yup from 'yup';
 
 import FormElement from './FormElement';
 import ImageUpload from './ImageUpload';
 import RecipeBody from './RecipeBody';
 import Select from './Select';
-
-const defaultBody = [
-    {
-        name: 'Background',
-        type: 'richText',
-        content: '',
-    },
-    {
-        name: 'Ingredients',
-        type: 'richText',
-        content: '',
-    },
-    {
-        name: 'Directions',
-        type: 'richText',
-        content: '',
-    },
-    {
-        name: 'Notes',
-        type: 'richText',
-        content: '',
-    },
-];
-
-interface categorySchemaMapInterface {
-    [key: string]: any;
-}
-
-const schema = Yup.object({
-    title: Yup.string().required('Required'),
-    slug: Yup.string()
-        .required('Required')
-        .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Must be a valid slug'),
-    preview: Yup.string().required('Required'),
-    body: Yup.array().of(
-        Yup.object().shape({
-            name: Yup.string(),
-            type: Yup.string().required('Required'),
-            content: Yup.mixed().required('Required'),
-        }),
-    ),
-    image: Yup.mixed(),
-    tags: Yup.lazy((obj) => {
-        const categoryKeys = Object.keys(obj);
-        const categorySchemaMap: categorySchemaMapInterface = {};
-
-        categoryKeys.forEach((key) => {
-            categorySchemaMap[key] = Yup.array().of(
-                Yup.object().shape({
-                    label: Yup.string(),
-                    value: Yup.string(),
-                }),
-            );
-        });
-
-        return Yup.object().shape(categorySchemaMap);
-    }),
-}).required();
 
 export default function RecipeForm({
     initialValues,
@@ -73,11 +15,7 @@ export default function RecipeForm({
     initialValues?: any;
     onSubmit: SubmitHandler<any>;
 }) {
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({
+    const { control, handleSubmit } = useForm({
         resolver: yupResolver(schema),
         defaultValues: {
             title: initialValues?.title || '',
@@ -102,9 +40,7 @@ export default function RecipeForm({
         },
     });
 
-    console.log(errors);
     const onSubmitWrap = async (data: any) => {
-        console.log(data);
         let { image, body, ...rest } = data;
 
         if (typeof image !== 'string') {
@@ -118,7 +54,6 @@ export default function RecipeForm({
                     section.type === 'image' &&
                     typeof section.content !== 'string'
                 ) {
-                    console.log(section.content);
                     section.content = await uploadImage(
                         data.slug,
                         index,
@@ -129,7 +64,6 @@ export default function RecipeForm({
                 return section;
             }),
         );
-        console.log(body);
         onSubmit({ ...data, body });
     };
 
@@ -205,7 +139,6 @@ export default function RecipeForm({
 
 const uploadImage = async (slug: string, id: any, image?: File) => {
     if (!image) return;
-    console.log(image.type);
     const {
         data: { signedUrl, publicUrl },
     } = await axios.post('recipes/image', {
@@ -226,3 +159,64 @@ const uploadImage = async (slug: string, id: any, image?: File) => {
         return publicUrl;
     }
 };
+
+interface categorySchemaMapInterface {
+    [key: string]: any;
+}
+
+const schema = yup
+    .object({
+        title: yup.string().required('Required'),
+        slug: yup
+            .string()
+            .required('Required')
+            .matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, 'Must be a valid slug'),
+        preview: yup.string().required('Required'),
+        body: yup.array().of(
+            yup.object().shape({
+                name: yup.string(),
+                type: yup.string().required('Required'),
+                content: yup.mixed().required('Required'),
+            }),
+        ),
+        image: yup.mixed(),
+        tags: yup.lazy((obj) => {
+            const categoryKeys = Object.keys(obj);
+            const categorySchemaMap: categorySchemaMapInterface = {};
+
+            categoryKeys.forEach((key) => {
+                categorySchemaMap[key] = yup.array().of(
+                    yup.object().shape({
+                        label: yup.string(),
+                        value: yup.string(),
+                    }),
+                );
+            });
+
+            return yup.object().shape(categorySchemaMap);
+        }),
+    })
+    .required();
+
+const defaultBody = [
+    {
+        name: 'Background',
+        type: 'richText',
+        content: '',
+    },
+    {
+        name: 'Ingredients',
+        type: 'richText',
+        content: '',
+    },
+    {
+        name: 'Directions',
+        type: 'richText',
+        content: '',
+    },
+    {
+        name: 'Notes',
+        type: 'richText',
+        content: '',
+    },
+];

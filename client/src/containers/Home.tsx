@@ -68,7 +68,7 @@ export default function HomePage() {
                 <h2 className="text-3xl font-normal">Latest Recipes</h2>
                 <div className="carousel rounded-box  space-x-4 p-4">
                     {recipes.map((recipe: any) => (
-                        <div className="carousel-item">
+                        <div className="carousel-item" key={recipe._id}>
                             <img
                                 src={recipe.image}
                                 className="rounded-box h-72"
@@ -76,7 +76,6 @@ export default function HomePage() {
                         </div>
                     ))}
                 </div>
-                d
             </div>
         </div>
     );
