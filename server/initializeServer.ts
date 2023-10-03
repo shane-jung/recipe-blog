@@ -8,13 +8,12 @@ export default function initializeServer(router: Router) {
     const isProduction = process.env.NODE_ENV === 'production';
     const origin = {
         origin: isProduction
-            ? 'https://d19ni2qsauncnt.cloudfront.net'
+            ? 'https://shanyefood.com'
             : 'http://localhost:3000',
         methods: 'GET,POST,PUT,DELETE',
         allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
         credentials: true,
     };
-    console.log(origin);
 
     app.use(cookieParser());
     app.set('trust proxy', 1);

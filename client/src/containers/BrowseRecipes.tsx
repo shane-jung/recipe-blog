@@ -1,5 +1,6 @@
 import ProtectedElement from '@/components/Auth/ProtectedElement';
 import Breadcrumbs from '@/components/Misc/Breadcrumbs';
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 import axios from '../axios';
@@ -12,6 +13,10 @@ export default function BrowseRecipes() {
         () => axios.get(`/recipes`).then((res) => res.data),
         { enabled: true },
     );
+
+    useEffect(() => {
+        document.title = `Browse Recipes | shanyefood`;
+    }, []);
     return (
         <div className="mx-auto p-8 2xl:px-32">
             <Breadcrumbs path={[{ label: 'Browse Recipes' }]} />

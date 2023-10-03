@@ -3,6 +3,7 @@ import ProtectedElement from '@/components/Auth/ProtectedElement';
 import Breadcrumbs from '@/components/Misc/Breadcrumbs';
 import DeleteRecipe from '@/components/Recipes/DeleteRecipe';
 import { useRequestProcessor } from '@/query';
+import { useEffect } from 'react';
 import { FiEdit } from 'react-icons/fi';
 import { Link, useLocation } from 'react-router-dom';
 
@@ -18,6 +19,12 @@ export default function ViewRecipePage() {
         () => axios.get(`/recipes/${slug}`).then((res) => res.data),
         { enabled: true },
     );
+
+    useEffect(() => {
+        document.title = `${recipe?.title} | shanyefood` || 'Loading...';
+
+        window.scrollTo(0, 0);
+    }, [recipe]);
     return (
         <div className="prose mx-auto max-w-5xl ">
             <div className="relative flex items-center justify-between">

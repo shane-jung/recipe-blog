@@ -50,12 +50,11 @@ export default function Login() {
     };
 
     return (
-        <div className="card mx-auto max-w-2xl shadow-md">
+        <div className="card card-normal mx-auto mt-8 max-w-xl shadow-md">
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div className="card-header">
-                    <h2 className="card-title">Login</h2>
-                </div>
-                <div className="card-body">
+                <div className="card-body items-center text-center">
+                    <h2 className="card-title text-center text-2xl">Login</h2>
+
                     <FormElement
                         control={control}
                         name="email"
@@ -71,9 +70,14 @@ export default function Login() {
                         type={'password'}
                         placeholder={'Password'}
                     />
-                </div>
-                <div className="card-footer">
-                    <button className="btn btn-primary">Login</button>
+                    <div className="card-actions">
+                        <button
+                            role="submit"
+                            className="btn btn-primary mx-auto"
+                        >
+                            Login
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>

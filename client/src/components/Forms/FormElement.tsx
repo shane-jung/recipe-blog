@@ -19,9 +19,9 @@ export default function FormElement({
     className?: string;
 }) {
     return (
-        <div className={clsx('form-control relative mt-2 pb-6', className)}>
+        <div className={clsx('form-control relative mb-3 ', className)}>
             <label
-                className="label label-text w-full font-medium capitalize"
+                className="label label-text font-medium capitalize"
                 htmlFor={name}
             >
                 {label}

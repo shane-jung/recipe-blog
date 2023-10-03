@@ -14,7 +14,7 @@ const recipeSchema = new Schema(
             of: [{ $type: Schema.Types.ObjectId, ref: 'Tag' }],
         },
     },
-    { typeKey: '$type' },
+    { typeKey: '$type', timestamps: true },
 );
 
 const Recipe = model('Recipe', recipeSchema);

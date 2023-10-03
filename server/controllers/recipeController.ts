@@ -7,7 +7,9 @@ import Recipe from '../model/recipe';
 const recipeController = {
     getRecipes: async (_req: Request, res: Response) => {
         try {
-            const recipes = await Recipe.find().populate({ path: 'tags.$*' });
+            const recipes = await Recipe.find()
+                .populate({ path: 'tags.$*' })
+                .sort({ createdAt: -1 });
             if (!recipes) {
                 return res.status(404).json({ error: 'No Recipes Found' });
             }
