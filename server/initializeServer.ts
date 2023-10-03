@@ -7,9 +7,7 @@ export default function initializeServer(router: Router) {
     const app = express();
     const isProduction = process.env.NODE_ENV === 'production';
     const origin = {
-        origin: isProduction
-            ? 'https://shanyefood.com'
-            : 'http://localhost:3000',
+        origin: isProduction ? '*' : 'http://localhost:3000',
         methods: 'GET,POST,PUT,DELETE',
         allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
         credentials: true,
@@ -25,11 +23,9 @@ export default function initializeServer(router: Router) {
 
     if (process.env.NODE_ENV === 'production') {
         const __dirname = path.resolve();
-        app.use(express.static(path.join(__dirname, '/frontend/dist')));
+        app.use(express.static(path.join(__dirname, 'assets')));
         app.get('*', (_req, res) =>
-            res.sendFile(
-                path.resolve(__dirname, 'frontend', 'dist', 'index.html'),
-            ),
+            res.sendFile(path.resolve(__dirname, 'index.html')),
         );
     } else {
         app.get('/', (_req, res) => {

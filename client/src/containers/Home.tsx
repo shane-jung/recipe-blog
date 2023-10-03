@@ -29,8 +29,8 @@ export default function HomePage() {
     if (error) return <p>Error</p>;
     if (isLoading) return <p>Loading...</p>;
     return (
-        <div className="grid lg:grid-cols-12">
-            <div className="lg:col-span-7">
+        <div className="grid grid-cols-1 md:grid-cols-12">
+            <div className="col-span-full md:col-span-7">
                 <figure>
                     <img
                         src={recipes[6].image}
@@ -39,8 +39,8 @@ export default function HomePage() {
                     />
                 </figure>
             </div>
-            <div className="prose prose-stone col-span-5 flex flex-col justify-center p-12">
-                <div className="mb-16">
+            <div className="prose prose-stone col-span-full flex flex-col justify-center px-12 md:col-span-5">
+                <div className="mb-4 md:mb-16">
                     <h2>
                         <Link
                             to={`/recipes/${recipes[6].slug}`}

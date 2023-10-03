@@ -11,13 +11,7 @@ const schema = yup.object({
         .string()
         .required('Required')
         .email('Must be a valid email address'),
-    password: yup
-        .string()
-        .required('Required')
-        .matches(
-            /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,32}$/,
-            'Must contain at least one uppercase letter, one lowercase letter, one number and one special character, and be between 8 and 32 characters',
-        ),
+    password: yup.string().required('Required'),
 });
 
 export default function Login() {
@@ -40,6 +34,7 @@ export default function Login() {
     const onSubmit = async (data: any) => {
         try {
             const res = await axios.post('/users/login', data);
+            console.log(res);
             if (res.status === 200) {
                 localStorage.setItem('user', JSON.stringify(res.data));
                 navigate('/');

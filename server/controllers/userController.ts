@@ -9,7 +9,7 @@ const userController = {
         const user = await User.findOne({ email });
         if (user && (await user.matchPassword(password))) {
             generateToken(res, user._id.toString());
-            return res.json({
+            res.json({
                 _id: user._id,
                 name: user.name,
                 email: user.email,
@@ -18,7 +18,6 @@ const userController = {
         } else {
             res.status(401).send({ message: 'Invalid email or password' });
         }
-        return res.status(200).json({});
     },
 
     registerUser: async (req: Request, res: Response) => {
