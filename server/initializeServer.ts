@@ -15,7 +15,6 @@ export default function initializeServer(router: Router) {
               ]
             : 'http://localhost:3000',
         methods: 'GET,POST,PUT,DELETE',
-        allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
         credentials: true,
     };
 
