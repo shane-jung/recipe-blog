@@ -7,7 +7,9 @@ export default function initializeServer(router: Router) {
     const app = express();
     const isProduction = process.env.NODE_ENV === 'production';
     const origin = {
-        origin: isProduction ? '*' : 'http://localhost:3000',
+        origin: isProduction
+            ? ['https://shanyefood.com', 'https://www.shanyefood.com']
+            : 'http://localhost:3000',
         methods: 'GET,POST,PUT,DELETE',
         allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
         credentials: true,
@@ -21,7 +23,7 @@ export default function initializeServer(router: Router) {
 
     app.use('/api', router);
 
-    if (process.env.NODE_ENV === 'production') {
+    if (isProduction) {
         const __dirname = path.resolve();
         app.use(express.static(path.join(__dirname, 'assets')));
         app.get('*', (_req, res) =>
