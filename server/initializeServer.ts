@@ -8,7 +8,11 @@ export default function initializeServer(router: Router) {
     const isProduction = process.env.NODE_ENV === 'production';
     const origin = {
         origin: isProduction
-            ? ['https://shanyefood.com', 'https://www.shanyefood.com']
+            ? [
+                  'https://shanyefood.com',
+                  'https://www.shanyefood.com',
+                  'https://api.shanyefood.com',
+              ]
             : 'http://localhost:3000',
         methods: 'GET,POST,PUT,DELETE',
         allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept',
